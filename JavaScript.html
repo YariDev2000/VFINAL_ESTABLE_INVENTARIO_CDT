@@ -1,0 +1,233 @@
+<script>
+  
+    function preventFormSubmit() {
+          var forms = document.querySelectorAll('form');
+          for (var i = 0; i < forms.length; i++) {
+            forms[i].addEventListener('submit', function(event) {
+              event.preventDefault();
+            });
+          }
+        }
+    window.addEventListener('load', preventFormSubmit);
+    window.addEventListener('load', buscarDatos);
+  
+    window.addEventListener("input", onInputChange);
+  
+  
+  
+    function handleFormSubmit(formObject){
+      const form = document.getElementById("myForm");
+      const codigodeinventario = form.codigodeinventario.value;
+      console.log(codigodeinventario);
+  
+      if (codigodeinventario === '') {
+        google.script.run.withSuccessHandler(updateUrl).withFailureHandler(onFailure).uploadFiles(formObject);
+      }
+      else {
+        google.script.run
+        .withSuccessHandler(result => {
+          formObject.reset();
+          const crearModal = bootstrap.Modal.getOrCreateInstance('#exampleModal');
+          crearModal.hide();
+        })
+        .editarUsuario(formObject);
+      }
+  
+    }
+  
+    function updateUrl(url) {
+      var div = document.getElementById('output');
+      if(isValidURL(url)){
+        div.innerHTML = '<div class="alert alert-success" role="alert"><a href="' + url + '">¡Archivo cargado correctamente!</a></div>';
+        document.getElementById("myForm").reset();
+        const tableBody = document.getElementById("tableBody-usuarios");
+        tableBody.innerHTML = "";
+        buscarDatos();
+      }else{
+        //Show warning message if file is not uploaded or provided
+        div.innerHTML = '<div class="alert alert-danger" role="alert">'+ '¡' + url +'!</div>';
+        document.getElementById("myForm").reset();
+        const tableBody = document.getElementById("tableBody-usuarios");
+        tableBody.innerHTML = "";
+        buscarDatos();
+  
+      }
+  
+    }
+  
+    function onFailure(error) {
+      var div = document.getElementById('output');
+      div.innerHTML = '<div class="alert alert-danger" role="alert">'+ error.message +'!</div>';
+  
+      formObject.reset();
+    }
+  
+    function isValidURL(string) {
+      var res = string.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+      return (res !== null);
+    }
+  
+    function buscarDatos() {
+      google.script.run
+      .withSuccessHandler(dataUsuarios => {
+        let tableBody = document.getElementById("tableBody-usuarios");
+        var template = document.getElementById("rowTemplate");
+        var templateContent = template.content;
+  
+        dataUsuarios.forEach(usuario => {
+          const tr = templateContent.cloneNode(true);
+  
+          const codigodeinventario = tr.querySelector(".template-codigodeinventario");
+          const descripcion = tr.querySelector(".template-descripcion");
+          const tipodeactivo = tr.querySelector(".template-tipodeactivo");
+          const cantidad = tr.querySelector(".template-cantidad");
+          const fecha = tr.querySelector(".template-fecha");
+          const modelo = tr.querySelector(".template-modelo");
+          const numerodeserie = tr.querySelector(".template-numerodeserie");
+          const numerodeparte = tr.querySelector(".template-numerodeparte");
+          const almacen = tr.querySelector(".template-almacen");
+          const ubicacion = tr.querySelector(".template-ubicacion");
+          
+          
+          const acciones = tr.querySelector(".template-acciones");
+          const editButton = tr.querySelector(".button-edit");
+          const deleteButton = tr.querySelector(".button-delete");
+  
+          const imagen = tr.querySelector(".template-imagen");
+  
+          codigodeinventario.textContent = usuario[0];
+          descripcion.textContent = usuario[1];
+          tipodeactivo.textContent = usuario[2];
+          cantidad.textContent = usuario[3];
+          fecha.textContent = usuario[4];
+          modelo.textContent = usuario[5];
+          numerodeserie.textContent = usuario[6];
+          numerodeparte.textContent = usuario[7];
+          almacen.textContent = usuario[8];
+          ubicacion.textContent = usuario[9];
+                  
+                  
+          editButton.dataset.codigodeinventario = usuario[0];
+          deleteButton.dataset.codigodeinventario = usuario[0];
+  
+          imagen.textContent = usuario[11];
+  
+          tableBody.appendChild(tr);
+        })
+      })
+      .readUsers();
+    }
+  
+    function editarUsuarioModal(button) {
+      
+      const tableRow = button.parentNode.parentNode;
+      /*console.log(tableRow);*/
+      const codigodeinventario = button.dataset.codigodeinventario;
+      const descripcion = tableRow.cells[2].innerHTML;
+      const tipodeactivo = tableRow.cells[1].innerHTML;
+      const modelo = tableRow.cells[5].innerHTML;
+      const cantidad = parseInt(tableRow.cells[6].innerHTML);
+      const fecha = tableRow.cells[9].innerHTML;
+      const numerodeserie = tableRow.cells[4].innerHTML;
+      const numerodeparte = tableRow.cells[3].innerHTML;
+      const almacen = tableRow.cells[8].innerHTML;
+      const ubicacion = tableRow.cells[7].innerHTML;
+         
+  
+      const crearModal = bootstrap.Modal.getOrCreateInstance("#exampleModal")
+      crearModal.show();
+      document.getElementById("descripcion").value = descripcion;
+      document.getElementById("tipo").value = tipodeactivo;
+      document.getElementById("cantidad").value = cantidad;
+      document.getElementById("fecha").value = fecha;
+      document.getElementById("modelo").value = modelo;
+      document.getElementById("serie").value = numerodeserie;
+      document.getElementById("numeroParte").value = numerodeparte;
+      document.getElementById("almacen").value = almacen;
+      document.getElementById("ubicacion").value = ubicacion;
+  
+      document.getElementById("codigodeinventario").value = codigodeinventario;
+      
+    }
+  
+    function borrarUsuarioModal(button) {
+      const codigodeinventario = button.dataset.codigodeinventario;
+      console.log(codigodeinventario);
+      const borrarButton = document.getElementById('borrarUsuario');
+      borrarButton.dataset.codigodeinventario = codigodeinventario;
+      const deleteModal = bootstrap.Modal.getOrCreateInstance("#deleteModal");
+      deleteModal.show();
+    }
+  
+    function clearForm()
+    { 
+      const form = document.getElementById("myForm");
+      form.reset();
+      const dataAttributeId = document.getElementById("borrarUsuario");
+      dataAttributeId.removeAttribute("codigodeinventario");
+    }
+  
+    function validarBorrado(button) {
+  
+      var borrarButton = document.getElementById('borrarUsuario');
+      codigodeinventario = borrarButton.dataset.codigodeinventario;
+  
+      console.log(codigodeinventario);
+  
+      google.script.run
+      .withSuccessHandler (result => {
+        const tableBody = document.getElementById("tableBody-usuarios");
+        tableBody.innerHTML = "";
+        buscarDatos();
+        //const dataAttributeId = document.getElementById("borrarUsuario");
+        //dataAttributeId.removeAttribute("codigodeinventario");
+        const borrarUsuarioModal = bootstrap.Modal.getOrCreateInstance("#deleteModal");
+        //borrarUsuarioModal.hide();
+      })
+  
+      .borrarUsuario(codigodeinventario);
+    }
+  
+    function onInputChange() {
+      let inputTextCodigo = document.getElementById("buscarCodigo").value.toString().toLowerCase();
+      let inputTextDescripcion = document.getElementById("buscarRegistro").value.toString().toLowerCase();
+      let inputTextTipo = document.getElementById("buscarTipo").value.toString().toLowerCase();
+      let inputTextNumeroParte = document.getElementById("buscarNumeroParte").value.toString().toLowerCase();
+      let inputTextAlmacen = document.getElementById("buscarAlmacen").value.toString().toLowerCase();
+  
+      let tableBody = document.getElementById("tableBody-usuarios");
+      let tableRows = tableBody.getElementsByTagName("tr");
+  
+      /*console.log(tableRows);*/
+      for (let i = 0; i < tableRows.length; i++) {
+        /*console.log(tableRows[i].cells[1].textContent);*/
+        let textoConsultaCodigo = tableRows[i].cells[0].textContent.toString().toLowerCase();
+        let textoConsultaDescripcion = tableRows[i].cells[2].textContent.toString().toLowerCase();
+        let textoConsultaTipo = tableRows[i].cells[1].textContent.toString().toLowerCase();
+        let textoConsultaNumeroParte = tableRows[i].cells[3].textContent.toString().toLowerCase();
+        let textoConsultaAlmacen = tableRows[i].cells[8].textContent.toString().toLowerCase();
+  
+        if(textoConsultaCodigo.indexOf(inputTextCodigo) === -1) {
+          tableRows[i].style.visibility = "collapse";
+        }
+        else if(textoConsultaDescripcion.indexOf(inputTextDescripcion) === -1) {
+          tableRows[i].style.visibility = "collapse";
+        }
+        else if(textoConsultaTipo.indexOf(inputTextTipo) === -1) {
+          tableRows[i].style.visibility = "collapse";
+        }
+        else if(textoConsultaNumeroParte.indexOf(inputTextNumeroParte) === -1) {
+          tableRows[i].style.visibility = "collapse";
+        }
+        else if(textoConsultaAlmacen.indexOf(inputTextAlmacen) === -1) {
+          tableRows[i].style.visibility = "collapse";
+        }
+        else {
+          tableRows[i].style.visibility = "";
+        }
+      }
+      }
+  
+  
+  
+  </script>
