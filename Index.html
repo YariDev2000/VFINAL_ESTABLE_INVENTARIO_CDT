@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+
+    <!-- Bootstrap icons -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.js"></script>
+
+ <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"/> 
+
+  <style>
+    h1{
+      text-align:center;
+    }
+    
+    .col-3 {
+      margin: 1%;
+    }
+    .button-edit{
+      color: #86A3C2;
+    }
+    .button-delete{
+      color: #E38080;
+    }
+    #left{    
+    float: left;  
+    vertical-align: middle; 
+    }  
+    #right{    
+    float: right;
+    vertical-align: middle; 
+          }
+   
+  </style>
+
+  <?!= include('JavaScript'); ?>
+  </head>
+  <body>
+    
+<main class="container">
+      <div class = "d-flex p-2">
+
+        <div class="col my-auto">
+          <img src="https://i.ibb.co/zfRJvgp/Ferreyros.png" alt="Ferreyros" style="width:100%" id="left">
+        </div>
+
+        <div class="col my-auto">
+          <h1 > SISTEMA DE INVENTARIO </h1>
+        </div>
+
+        <div class="col my-auto">
+          <img src="https://i.ibb.co/424qzB9/icono-DT.png" alt="DT" style="width:80%" id="right">
+        </div>
+
+      </div>
+
+
+      <div class = "d-flex justify-content-between mb-12">
+        <div class = "col-3">
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"> <i class = "bi bi-plus"></i> Agregar </button>
+        </div>
+
+        <div class="col-3">
+          <input type="text" class="form-control" id="buscarCodigo" placeholder="Buscar por Código ...">
+        </div>
+        <div class="col-3">
+          <input type="text" class="form-control" id="buscarRegistro" placeholder="Buscar por Descripción ...">
+        </div>
+      </div>
+
+
+
+      <div class = "d-flex justify-content-between mb-12">
+        <div class="col-3">
+          <input type="text" class="form-control" id="buscarTipo" placeholder="Buscar por Tipo ...">
+        </div>
+        <div class="col-3">
+          <input type="text" class="form-control" id="buscarNumeroParte" placeholder="Buscar por Número de Parte ...">
+        </div>
+        <div class="col-3">
+          <input type="text" class="form-control" id="buscarAlmacen" placeholder="Buscar por Almacen ...">
+        </div>
+      </div>
+
+      
+
+      <table class="table table-hover"> 
+        <thead>
+          <tr> 
+            <th>Código de Inventario</th> 
+            <th>Código Alterno</th>
+            <th>Descripción</th>
+            <th>Número de Parte</th>
+            <th>Número de Serie</th>
+            <th>Modelo</th>
+            <th>Cantidad</th>
+            <th>Ubicación</th>           
+            <th>Almacén</th>          
+            <th>Fecha</th>
+            <th>Acciones</th>
+            <th>Imagen</th>
+          </tr>
+        </thead>
+
+        <tbody id="tableBody-usuarios"> 
+
+        </tbody>
+        
+      </table>
+
+      <template id="rowTemplate"> 
+        <tr> 
+          <td class="template-codigodeinventario"></td>
+          <td class="template-tipodeactivo"></td>
+          <td class="template-descripcion"></td>
+          <td class="template-numerodeparte"></td>
+          <td class="template-numerodeserie"></td>
+          <td class="template-modelo"></td>
+          <td class="template-cantidad"></td>
+          <td class="template-ubicacion"></td>  
+          <td class="template-almacen"></td>
+          <td class="template-fecha"></td>
+
+          <td class="template-acciones"> 
+            <i class="bi bi-pencil-square button-edit me-2" role="button" onclick = "editarUsuarioModal(this)"></i> 
+            <i class="bi bi-trash-fill button-delete me-2" role="button" onclick = "borrarUsuarioModal(this)" 
+            id="borrarUsuario"></i> 
+          </td>
+
+          <td class="template-imagen"></td>
+
+        </tr>
+      </template>
+
+    </main>
+
+    <!-- Modal Create -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">REGISTRO DE HERRAMIENTAS</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+           
+            <form name = "myForm" id="myForm" onsubmit="handleFormSubmit(this)">
+    
+              <div class="row mb-6">
+                <input type="text" class="form-control" id="codigodeinventario" name="codigodeinventario" placeholder="Codigo de inventario de herramienta a ingresar" hidden>
+              </div>
+
+              <div class="row mb-6">
+                
+                <div class = "col">
+                  <label for="descripcion">Descripcion</label>
+                  <input type="text" class="form-control" id="descripcion" name="descripcion" placeholder="Descripcion de herramienta a ingresar" required>
+                </div>
+
+                <div class = "col">
+                  <label for = "tipo">Tipo de Activo</label>
+                  <input class= "form-control" list="dlTipo" id = "tipo" name = "tipo" placeholder="Seleccione un tipo de herramienta" required>
+
+                  <datalist id = "dlTipo">
+                    <option value = ""> Seleccione el tipo de activo </option>
+                    <option value = "INSTRUMENTOS"> INSTRUMENTOS </option>
+                    <option value = "COMPONENTES"> COMPONENTES </option>
+                    <option value = "EQUIPOS"> EQUIPOS </option>
+                    <option value = "HERRAMIENTAS"> HERRAMIENTAS </option>
+
+                  </datalist>
+                </div>
+                
+              </div>
+  
+              <div class="row mb-6">
+                <div class="col">
+                <label for="cantidad">Cantidad</label>
+                <input type="number" class="form-control" id="cantidad" name="cantidad" placeholder="Ingresar el número de herramienta" required>
+                </div>
+
+                <div class="col">
+                <label for="fecha">Fecha</label>
+                <input type="date" placeholder="dd-mm-yyyy" min="1997-01-01" max="2090-12-31" class="form-control" id="fecha" name="fecha" required>
+                </div>
+              </div>
+
+              <div class="row mb-6">     
+                  <label for="modelo">Modelo</label>
+                  <input type="text" class="form-control" id="modelo" name="modelo" placeholder="Ingresar el modelo de herramienta" required>
+              </div>
+
+              <div class="row mb-6">
+                <div class="col">
+                <label for="serie">Serie</label>
+                <input type="text" class="form-control" id="serie" name="serie" placeholder="Ingresar la serie de herramienta" required>
+              </div>
+              <div class="col">
+                <label for="numeroParte">Número de Parte</label>
+                <input type="text" class="form-control" id="numeroParte" name="numeroParte" placeholder="Ingresar el número de parte de herramienta" required>
+              </div>
+            </div>
+              
+              <div class="row mb-6">
+                <div class="col">
+                <label for="almacen">Almacén</label>
+                  <input class="form-control" list="dlAlmacen" id="almacen" name = "almacen" placeholder="Seleccione el almacén donde se encuentra la herramienta" required>
+                <datalist id="dlAlmacen">  
+                  <option value="">Seleccione el almacén</option>
+                  <option value="CDT LIMA">CDT LIMA</option>
+                  <option value="CDT AREQUIPA">CDT AREQUIPA</option>
+                  <option value="SEDE TRUJILLO">SEDE TRUJILLO</option>
+                  <option value="SEDE INDUSTRIAL">SEDE INDUSTRIAL</option>
+                </datalist> 
+                  </div>
+                  <div class="col">
+                  <label for="ubicacion">Ubicación</label>
+                <input type="text" class="form-control" id="ubicacion" name="ubicacion" placeholder="Ingresar la ubicación de la herramienta" required>
+              </div>
+            </div>
+
+          <div class="row mb-6">     
+                  <label for="comentario">Comentario</label>
+                  <input type="text" class="form-control" id="comentario" name="comentario" placeholder="Ingresar el comentario de herramienta" required>
+              </div>
+
+          <div class="row mb-6">
+            <label for="FormControlFile">Imagen</label> 
+            <input name="myFile" class="form-control-file" type="file" id="FormControlFile" />
+           </div>
+
+          <br>
+
+          <div class="row mb-6">
+             <button type="Agregar" class="btn btn-primary btn-block">Insertar</button>
+           </div>
+         
+        </form>
+        <br>
+        <div id="output"></div>
+      
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="clearForm()">Cerrar</button>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <!-- Modal Delete -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteModalLabel">REGISTRO DE HERRAMIENTAS</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>¿Estás seguro que quieres dar de baja esta herramienta?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="clearForm()">Cerrar</button>
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="validarBorrado(this)">Dar de Baja</button>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+
+  </body>
+</html>
